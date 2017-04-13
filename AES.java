@@ -103,37 +103,47 @@ public class AES
 		catch(Exception e){System.out.println("initial scanner fail");}
 
 		String[][] mat = new String[4][4];
+		String[][] tempKey = new String[4][4];
 
-		String temp = "00112233445566778899AABBCCDDEEFF";
+		//String temp = "00112233445566778899AABBCCDDEEFF";
+		String temp = "046681E5E0CB199A48F8D37A2806264C";
+		String blah = "A0FAFE1788542CB123A339392A6C7605";
 		System.out.println(temp);
 		for(int i= 0;i<4;++i)
 		{
 			for(int j = 0; j<4;++j)
 			{
 				mat[j][i] = temp.substring(0,2);
+				tempKey[j][i] = blah.substring(0,2);
 				temp = temp.substring(2);
-				System.out.println(temp); 
+				blah = blah.substring(2);
+				//System.out.println(temp); 
 			}
 		}
-		for(int i= 0;i<4;++i)
-		{
-			for(int j = 0; j<4;++j)
-			{
-				System.out.print(mat[i][j]+" ");
-			}
-			System.out.println();
-		}
+		printMat(mat);
+		System.out.println();
+		printMat(tempKey);
+		System.out.println();
 
-		/*for(int i= 0;i<4;++i)
-		{
-			for(int j = 0; j<4;++j)
-			{
-				matTxt[j][i] = temp.substring(0,2);
-				temp = temp.substring(2);
-				System.out.println(temp); 
-			}
-		}*/
 
+		String s1 = "66";
+		String s2 = "fa";
+		String s3 = XORstring(s1,s2);
+		System.out.println(s3);
+
+		 s1 = "81";
+		 s2 = "fe";
+		 s3 = XORstring(s1,s2);
+		 System.out.println(s3);
+
+		 s1 = "e5";
+		 s2 = "17";
+		 s3 = XORstring(s1,s2);
+		 System.out.println(s3);
+
+		RoundKeyDemo(mat,tempKey);
+
+		printMat(mat);
 
 
 
@@ -241,10 +251,44 @@ public class AES
 		st[3][c] = (byte)(mul(0xE,a[3]) ^ mul(0xB,a[0]) ^ mul(0xD, a[1]) ^ mul(0x9,a[2]));
     } 
 
-    public void printMat()
+    public static void printMat(String[][] mat)
     {
-
+    	for(int i= 0;i<4;++i)
+		{
+			for(int j = 0; j<4;++j)
+			{
+				System.out.print(mat[i][j]+" ");
+			}
+			System.out.println();
+		}
     }
+
+ 	public static void RoundKeyDemo(String[][] t,String[][] k)
+ 	{
+ 		for(int i=0;i<4;++i)
+ 		{
+ 			for(int j=0;j<4;++j)
+ 			{
+ 				t[j][i] = XORstring(t[j][i],k[j][i]);
+ 			}
+ 		}
+ 	}
+
+ 	public static String XORstring(String s1, String s2)
+ 	{
+ 		String ret = "";
+ 		String[] nybble = new String[4];
+ 		nybble[0] = ""+s1.charAt(0);
+ 		nybble[1] = ""+s1.charAt(1);
+ 		nybble[2] = ""+s2.charAt(0);
+ 		nybble[3] = ""+s2.charAt(1);
+
+ 		String temp1 = Integer.toHexString(Integer.parseInt(nybble[0],16) ^ Integer.parseInt(nybble[2],16));
+ 		String temp2 = Integer.toHexString(Integer.parseInt(nybble[1],16) ^ Integer.parseInt(nybble[3],16));
+ 		ret=temp1+temp2;
+ 		//System.out.println(temp1+temp2);
+ 		return ret;
+ 	}
 
 
 /*AES Model
