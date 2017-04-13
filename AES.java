@@ -159,6 +159,14 @@ public class AES
 		printMat(mat);
 		//System.out.println();
 
+		String _s = "00";
+		_s = subByte(_s);
+		System.out.println(_s+"\n");
+
+		printMat(mat);
+		subByteDemo(mat);
+		printMat(mat);
+
 
 		while(sc.hasNextLine())
 		{
@@ -308,7 +316,6 @@ public class AES
  		String temp1 = Integer.toHexString(Integer.parseInt(nybble[0],16) ^ Integer.parseInt(nybble[2],16));
  		String temp2 = Integer.toHexString(Integer.parseInt(nybble[1],16) ^ Integer.parseInt(nybble[3],16));
  		ret=temp1+temp2;
- 		//System.out.println(temp1+temp2);
  		return ret;
  	}
 
@@ -324,6 +331,35 @@ public class AES
  			}
  			s[3] = temp;
  		}
+ 	}
+
+ 	public static void subByteDemo(String[][] mat)
+ 	{
+ 		for(int i = 0;i<4;++i)
+ 		{
+ 			for(int j = 0;j<4;++j)
+ 			{
+				mat[i][j] = subByte(mat[i][j]);
+ 			}
+ 		}
+ 	}
+
+ 	public static String subByte(String s)
+ 	{
+ 		String[] nybble = new String[2];
+ 		nybble[0] = ""+s.charAt(0);
+ 		//System.out.println(nybble[0]);
+ 		nybble[1] = ""+s.charAt(1);
+ 		//System.out.println(nybble[1]);
+ 		int x = Integer.parseInt(nybble[0],16);
+ 		int y = Integer.parseInt(nybble[1],16);
+ 		//System.out.println(x);
+ 		//System.out.println(y);
+ 		//System.out.println(Integer.toHexString(sbox[x][y]));
+ 		String stemp = Integer.toHexString(sbox[x][y]);
+ 		//System.out.println(stemp);
+ 		return stemp;
+
  	}
 
 
