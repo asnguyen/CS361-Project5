@@ -121,9 +121,9 @@ public class AES
 			}
 		}
 		printMat(mat);
-		System.out.println();
+		//System.out.println();
 		printMat(tempKey);
-		System.out.println();
+		//System.out.println();
 
 
 		String s1 = "66";
@@ -144,7 +144,20 @@ public class AES
 		RoundKeyDemo(mat,tempKey);
 
 		printMat(mat);
+		//System.out.println();
 
+		String[] ary = {"11","22","33","44"};
+		shiftRow(ary,2);
+		for(int i=0;i<4;++i)
+		{
+			System.out.print(ary[i]+" ");
+		}
+
+		System.out.println("\n");
+		printMat(mat);
+		RowShiftDemo(mat);
+		printMat(mat);
+		//System.out.println();
 
 
 		while(sc.hasNextLine())
@@ -261,6 +274,7 @@ public class AES
 			}
 			System.out.println();
 		}
+		System.out.println();
     }
 
  	public static void RoundKeyDemo(String[][] t,String[][] k)
@@ -271,6 +285,14 @@ public class AES
  			{
  				t[j][i] = XORstring(t[j][i],k[j][i]);
  			}
+ 		}
+ 	}
+
+ 	public static void RowShiftDemo(String[][] t)
+ 	{
+ 		for(int i=0;i<4;++i)
+ 		{
+ 			shiftRow(t[i],i);
  		}
  	}
 
@@ -288,6 +310,20 @@ public class AES
  		ret=temp1+temp2;
  		//System.out.println(temp1+temp2);
  		return ret;
+ 	}
+
+ 	public static void shiftRow(String [] s, int n)
+ 	{
+ 		String temp = "";
+ 		for(int i=0;i<n;++i)
+ 		{
+ 			temp = s[0];
+ 			for(int j=1;j<4;++j)
+ 			{
+ 				s[j-1] = s[j];
+ 			}
+ 			s[3] = temp;
+ 		}
  	}
 
 
