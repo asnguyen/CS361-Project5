@@ -301,6 +301,23 @@ public class AES
 		st[3][c] = (byte)(mul(0xE,a[3]) ^ mul(0xB,a[0]) ^ mul(0xD, a[1]) ^ mul(0x9,a[2]));
     } 
 
+    public void invMixColumn(String[][] st, int c)
+    {
+    	int a[] = new int[4];
+
+    	for(int i = 0;i<4; i++)
+    			a[i] = Integer.parseInt(st[i][c],16);
+    	int i1 = mul2(0xE,a[0]);
+    	int i2 = mul2(0xB,a[1]);
+    	int i3 = mul2(0xD,a[2]);
+    	int i4 = mul2(0x9,a[3]);
+    	st[0][c] = zerofiller(Integer.toHexString(mul2(0xE,a[0]) ^ mul2(0xB,a[1]) ^ mul2(0xD,a[2]) ^ mul2(0x9,a[3])));
+    	st[1][c] = zerofiller(Integer.toHexString(mul2(0xE,a[1]) ^ mul2(0xB,a[2]) ^ mul2(0xD,a[3]) ^ mul2(0x9,a[0])));
+    	st[2][c] = zerofiller(Integer.toHexString(mul2(0xE,a[2]) ^ mul2(0xB,a[3]) ^ mul2(0xD,a[0]) ^ mul2(0x9,a[1])));
+    	st[3][c] = zerofiller(Integer.toHexString(mul2(0xE,a[3]) ^ mul2(0xB,a[0]) ^ mul2(0xD,a[1]) ^ mul2(0x9,a[2])));
+
+    }
+
     public static void printMat(String[][] mat)
     {
     	for(int i= 0;i<4;++i)
