@@ -43,6 +43,8 @@ public class AES
 
 	//static byte[][] matText = [4][4];		
 	//static byte[][] matKey  = [4][4];	
+	//static String[][] expkey = new String[4][120];
+	static String[][] expkey = new String[4][16];
 
 	static int[][] sbox = {{0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76}, 
 	                       {0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0}, 
@@ -102,6 +104,14 @@ public class AES
 		}
 		catch(Exception e){System.out.println("initial scanner fail");}
 
+		for(int i=0;i<4;++i)
+ 		{
+ 			for(int j =0; j<expkey[i].length;++j)
+ 			{
+ 				expkey[i][j] = "##";
+ 			}
+ 		}
+
 		String[][] mat = new String[4][4];
 		String[][] tempKey = new String[4][4];
 
@@ -109,6 +119,8 @@ public class AES
 		//String temp = "046681E5E0CB199A48F8D37A2806264C";
 		String temp = "D4BF5D30E0B452AEB84111F11E279835";
 		String blah = "A0FAFE1788542CB123A339392A6C7605";
+		String _key = "000000000000000000000000000000000000000000000000000000000000000000";
+		keyExpansion(_key);
 		System.out.println(temp);
 		for(int i= 0;i<4;++i)
 		{
@@ -176,6 +188,8 @@ public class AES
 			mixColumn(mat,i);
 		}
 		printMat(mat);
+
+		//keyExpansion("123");
 
 		while(sc.hasNextLine())
 		{
@@ -324,7 +338,7 @@ public class AES
     {
     	for(int i= 0;i<4;++i)
 		{
-			for(int j = 0; j<4;++j)
+			for(int j = 0; j<mat[i].length;++j)
 			{
 				System.out.print(mat[i][j]+" ");
 			}
@@ -407,7 +421,103 @@ public class AES
  		String stemp = zerofiller(Integer.toHexString(sbox[x][y]));
  		//System.out.println(stemp);
  		return stemp;
+ 	}
 
+ 	public static void keyExpansion(String key)
+ 	{
+ 		String temp = key;
+ 		for(int i= 0;i<8;++i)
+		{
+			for(int j = 0; j<4;++j)
+			{
+				expkey[j][i] = temp.substring(0,2);
+				temp = temp.substring(2); 
+			}
+		}
+		for(int i=8;i<16;++i)
+		{
+			for(int j=0;j<4;++j)
+			{
+
+			}
+		}
+ 		printMat(expkey);
+ 	}
+
+ 	//written in C so will need to reformat to java
+ 	public static char rcon(char in)
+ 	{
+ 		char c = 1;
+ 		if(in == 0)
+ 			return 0;
+ 		while(in !=1)
+ 		{
+ 			char b;
+ 			b = c & 0x80;
+ 			c <<=1;
+ 			if(b==0x80)
+ 			{
+ 				c^=0x1b;
+ 			}
+ 			in--;
+ 		}
+ 		return c;
+ 	}
+
+ 	//written in C so will need to reformat to java
+ 	public static void rotate(char[] in)
+ 	{
+ 		char a,c;
+ 		a = in[0];
+ 		for(int i = 0; i<3;i++)
+ 		{
+ 			in[i] = in[i+1];
+ 		}
+ 		in[3] = a;
+ 	}
+
+ 	public static void schedule_core(char[] in, char i)
+ 	{
+ 		char a;
+ 		rotate(in);
+ 		for(int i = 0;i<4;++i)
+ 		{
+ 			//in[i];	//subByte
+ 		}
+ 		in[0]^=rcon(i);
+ 	}
+
+ 	//written in C so will need to reformat to java
+ 	public static void expand_key(char in[])
+ 	{
+ 		char[] t = new char[4];
+ 		char c = 32;
+ 		char i = 1;
+ 		char a;
+ 		while(c<240)
+ 		{
+ 			for(int j = 0; j<4;j++)
+ 			{
+ 				t[j] = in[a+c-4];
+ 			}
+ 			if(c%32==0)
+ 			{
+ 				schedule_core(t,i);
+ 				i++;
+ 			}
+ 			if(i%32==16)
+ 			{
+ 				for(int j= 0;j<4;j++)
+ 				{
+ 					//t[a]; 	//subByte
+ 				}
+ 			}
+ 			for(int j = 0; j < 4; j++)
+ 			{
+ 				in[c] = in[c-32] ^ t[j];
+ 				c++;
+ 			}
+ 		}
  	}
 
 
