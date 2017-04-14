@@ -110,6 +110,7 @@ public class AES
 		}
 		fw.close();
 		printMat(mat);
+		testInv();
 
 		System.out.println("PROGRAM END");
 	}
@@ -127,6 +128,17 @@ public class AES
 			}
 		}
 		return mat;
+	}
+
+	public static void testInv()
+	{
+		String[] s = {"11","22","33","44"};
+		invShiftRow(s,3);
+		for(int j=0;j<s.length;++j)
+		{
+			System.out.print(s[j]+" ");
+		}
+		System.out.println();
 	}
 
 	public static StringBuilder toBinary(String s)
@@ -324,6 +336,14 @@ public class AES
  		}
  	}
 
+ 	public static void invRowShiftDemo(String[][] t)
+ 	{
+ 		for(int i=0;i<4;++i)
+ 		{
+ 			invShiftRow(t[i],i);
+ 		}
+ 	}
+
  	public static String XORstring(String s1, String s2)
  	{
  		String ret = "";
@@ -350,6 +370,20 @@ public class AES
  				s[j-1] = s[j];
  			}
  			s[3] = temp;
+ 		}
+ 	}
+
+ 	public static void invShiftRow(String []s,int n)
+ 	{
+ 		String temp = "";
+ 		for(int i=0;i<n;++i)
+ 		{
+ 			temp = s[3];
+ 			for(int j=3;j>0;--j)
+ 			{
+ 				s[j] = s[j-1];
+ 			}
+ 			s[0] = temp;
  		}
  	}
 
