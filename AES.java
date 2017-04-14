@@ -447,6 +447,16 @@ public class AES
  	}*/
 
  	public static void keyExpansion(String key)
+ 	{
+ 		File f = new File("expandedKey.txt");
+ 		FileWriter fw = null;
+ 		try
+ 		{
+ 			fw = new FileWriter(f);
+ 		}
+ 		catch(Exception e){}
+ 		
+ 	}
 
  	//written in C so will need to reformat to java
  	/*
