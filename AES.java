@@ -106,7 +106,8 @@ public class AES
 		String[][] tempKey = new String[4][4];
 
 		//String temp = "00112233445566778899AABBCCDDEEFF";
-		String temp = "046681E5E0CB199A48F8D37A2806264C";
+		//String temp = "046681E5E0CB199A48F8D37A2806264C";
+		String temp = "D4BF5D30E0B452AEB84111F11E279835";
 		String blah = "A0FAFE1788542CB123A339392A6C7605";
 		System.out.println(temp);
 		for(int i= 0;i<4;++i)
@@ -141,7 +142,7 @@ public class AES
 		 s3 = XORstring(s1,s2);
 		 System.out.println(s3);
 
-		RoundKeyDemo(mat,tempKey);
+		//RoundKeyDemo(mat,tempKey);
 
 		printMat(mat);
 		//System.out.println();
@@ -155,7 +156,7 @@ public class AES
 
 		System.out.println("\n");
 		printMat(mat);
-		RowShiftDemo(mat);
+		//RowShiftDemo(mat);
 		printMat(mat);
 		//System.out.println();
 
@@ -163,10 +164,18 @@ public class AES
 		_s = subByte(_s);
 		System.out.println(_s+"\n");
 
+		System.out.println("subByte");
 		printMat(mat);
-		subByteDemo(mat);
+		//subByteDemo(mat);
 		printMat(mat);
 
+		System.out.println("mixColumn");
+		printMat(mat);
+		for(int i=0;i<4;++i)
+		{
+			mixColumn(mat,i);
+		}
+		printMat(mat);
 
 		while(sc.hasNextLine())
 		{
@@ -230,10 +239,25 @@ public class AES
 		{
 	    	int index = (LogTable[inda] + LogTable[indb]);
 	    	byte val = (byte)(AlogTable[ index % 255 ] );
-	    return val;
+	    	return val;
 		}
 		else 
-	    return 0;
+	    	return 0;
+	}
+
+	private static int mul2 (int a, int b) 
+	{
+		int inda = (a < 0) ? (a + 256) : a;
+		int indb = (b < 0) ? (b + 256) : b;
+
+		if ( (a != 0) && (b != 0) ) 
+		{
+	    	int index = (LogTable[inda] + LogTable[indb]);
+	    	int val = (AlogTable[ index % 255 ] );
+	    	return val;
+		}
+		else 
+	    	return 0;
 	}
 
 	//Used the code provided by https://www.cs.utexas.edu/~byoung/cs361/mixColumns-cheat-sheet
@@ -256,6 +280,30 @@ public class AES
 		st[1][c] = (byte)(mul(2,a[1]) ^ a[3] ^ a[0] ^ mul(3,a[2]));
 		st[2][c] = (byte)(mul(2,a[2]) ^ a[0] ^ a[1] ^ mul(3,a[3]));
 		st[3][c] = (byte)(mul(2,a[3]) ^ a[1] ^ a[2] ^ mul(3,a[0]));
+    }
+
+
+    public static void mixColumn (String[][] st, int c) 
+	{
+	
+		int a[] = new int[4];
+	
+		for (int i = 0; i < 4; i++) 
+	    	a[i] = Integer.parseInt(st[i][c],16);
+	
+		// This is exactly the same as mixColumns1, if 
+		// the mul columns somehow match the b columns there.
+		st[0][c] = zerofiller(Integer.toHexString((mul2(2,a[0]) ^ a[2] ^ a[3] ^ mul2(3,a[1]))));
+		st[1][c] = zerofiller(Integer.toHexString((mul2(2,a[1]) ^ a[3] ^ a[0] ^ mul2(3,a[2]))));
+		st[2][c] = zerofiller(Integer.toHexString((mul2(2,a[2]) ^ a[0] ^ a[1] ^ mul2(3,a[3]))));
+		st[3][c] = zerofiller(Integer.toHexString((mul2(2,a[3]) ^ a[1] ^ a[2] ^ mul2(3,a[0]))));
+    }
+
+    public static String zerofiller(String s)
+    {
+    	if(s.length()==1)
+    		s="0"+s;
+    	return s;
     }
 
     //Used the code provided by https://www.cs.utexas.edu/~byoung/cs361/mixColumns-cheat-sheet
@@ -313,8 +361,8 @@ public class AES
  		nybble[2] = ""+s2.charAt(0);
  		nybble[3] = ""+s2.charAt(1);
 
- 		String temp1 = Integer.toHexString(Integer.parseInt(nybble[0],16) ^ Integer.parseInt(nybble[2],16));
- 		String temp2 = Integer.toHexString(Integer.parseInt(nybble[1],16) ^ Integer.parseInt(nybble[3],16));
+ 		String temp1 = zerofiller(Integer.toHexString(Integer.parseInt(nybble[0],16) ^ Integer.parseInt(nybble[2],16)));
+ 		String temp2 = zerofiller(Integer.toHexString(Integer.parseInt(nybble[1],16) ^ Integer.parseInt(nybble[3],16)));
  		ret=temp1+temp2;
  		return ret;
  	}
@@ -356,7 +404,7 @@ public class AES
  		//System.out.println(x);
  		//System.out.println(y);
  		//System.out.println(Integer.toHexString(sbox[x][y]));
- 		String stemp = Integer.toHexString(sbox[x][y]);
+ 		String stemp = zerofiller(Integer.toHexString(sbox[x][y]));
  		//System.out.println(stemp);
  		return stemp;
 
