@@ -422,9 +422,10 @@ public class AES
  		//System.out.println(stemp);
  		return stemp;
  	}
-
+ 	/*
  	public static void keyExpansion(String key)
  	{
+ 		/*
  		String temp = key;
  		for(int i= 0;i<8;++i)
 		{
@@ -442,9 +443,13 @@ public class AES
 			}
 		}
  		printMat(expkey);
- 	}
+
+ 	}*/
+
+ 	public static void keyExpansion(String key)
 
  	//written in C so will need to reformat to java
+ 	/*
  	public static char rcon(char in)
  	{
  		char c = 1;
@@ -462,9 +467,27 @@ public class AES
  			in--;
  		}
  		return c;
+ 	}*/
+
+ 	public static int rcon(int in)
+ 	{
+ 		int c = 1;
+ 		if(in==0)
+ 			return 0;
+ 		while(in != 1)
+ 		{
+ 			int b;
+ 			b = c & 0x80;
+ 			c <<= 1;
+ 			if(b == 0x80)
+ 				c ^=0x1b;
+ 			in--;
+ 		}
+ 		return c;
  	}
 
  	//written in C so will need to reformat to java
+ 	/*
  	public static void rotate(char[] in)
  	{
  		char a,c;
@@ -474,9 +497,20 @@ public class AES
  			in[i] = in[i+1];
  		}
  		in[3] = a;
- 	}
+ 	}*/
 
- 	public static void schedule_core(char[] in, char i)
+ 	public static void rotate(String[] in)
+ 	{
+ 		String x;
+ 		x = in[0];
+ 		for(int i = 0;i< 3;i++)
+ 		{
+ 			in[i] = in[i+1];
+ 		}
+ 		in[3]=a;
+ 	}
+ 	/*
+ 	public static void schedule_core(char[] in, char c)
  	{
  		char a;
  		rotate(in);
@@ -485,9 +519,20 @@ public class AES
  			//in[i];	//subByte
  		}
  		in[0]^=rcon(i);
+ 	}*/
+
+ 	public static void schedule_core(String[] in, int c)
+ 	{
+ 		rotate(in);
+ 		for(int i=0;i<4;++i)
+ 		{
+ 			in[i] = subByte(in[i]);
+ 		}
+ 		in[0] = zerofiller(Integer.toHexString(Integer.parseInt(in[0])^rcon(c)));
  	}
 
- 	//written in C so will need to reformat to java
+ 	//written in C so will need to reformat to java aka char are int/
+ 	/*
  	public static void expand_key(char in[])
  	{
  		char[] t = new char[4];
@@ -498,7 +543,8 @@ public class AES
  		{
  			for(int j = 0; j<4;j++)
  			{
- 				t[j] = in[a+c-4];
+ 				t[j] = in[a+c-4];		//note: possible error
+
  			}
  			if(c%32==0)
  			{
@@ -515,6 +561,37 @@ public class AES
  			for(int j = 0; j < 4; j++)
  			{
  				in[c] = in[c-32] ^ t[j];
+ 				c++;
+ 			}
+ 		}
+ 	}*/
+
+ 	public static void expand_key(String in[])
+ 	{
+ 		String[] t = new String[4];
+ 		int c = 32;
+ 		int _i = 1;
+ 		while(c<240)
+ 		{
+ 			for(int i=0;i<4;++i)
+ 			{
+ 				t[i] = in[i+c-4];
+ 			}
+ 			if(c%32==0)
+ 			{
+ 				schedule_core(t,i);
+ 				i++;
+ 			}
+ 			if(i%32==16)
+ 			{
+ 				for(int i=0;;i<4;++i)
+ 				{
+ 					t[a] = subByte(t[a]);
+ 				}
+ 			}
+ 			for(int i=0;i<4;++i)
+ 			{
+ 				in[c] = zerofiller(Integer.toHexString(Integer.parseInt(in[c-32],16) ^ Integer.parseInt(t[a],16)));
  				c++;
  			}
  		}
