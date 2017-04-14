@@ -98,94 +98,17 @@ public class AES
 			sc  = new Scanner(new File(args[2]));
 		}
 		catch(Exception e){System.out.println("initial scanner fail");}
-
 		String[][] mat = new String[4][4];
-		String[][] tempKey = new String[4][4];
-
-		//String temp = "00112233445566778899AABBCCDDEEFF";
-		//String temp = "046681E5E0CB199A48F8D37A2806264C";
-		String temp = "D4BF5D30E0B452AEB84111F11E279835";
-		String blah = "A0FAFE1788542CB123A339392A6C7605";
-		String _key = "000000000000000000000000000000000000000000000000000000000000000000";
-		//keyExpansion(_key);
-		//System.out.println(temp);
-		for(int i= 0;i<4;++i)
-		{
-			for(int j = 0; j<4;++j)
-			{
-				mat[j][i] = temp.substring(0,2);
-				tempKey[j][i] = blah.substring(0,2);
-				temp = temp.substring(2);
-				blah = blah.substring(2);
-				//System.out.println(temp); 
-			}
-		}
-		//printMat(mat);
-		//System.out.println();
-		//printMat(tempKey);
-		//System.out.println();
-
-
-		String s1 = "66";
-		String s2 = "fa";
-		String s3 = XORstring(s1,s2);
-		//System.out.println(s3);
-
-		 s1 = "81";
-		 s2 = "fe";
-		 s3 = XORstring(s1,s2);
-		 //System.out.println(s3);
-
-		 s1 = "e5";
-		 s2 = "17";
-		 s3 = XORstring(s1,s2);
-		 //System.out.println(s3);
-
-		//RoundKeyDemo(mat,tempKey);
-
-		//printMat(mat);
-		//System.out.println();
-
-		String[] ary = {"11","22","33","44"};
-		shiftRow(ary,2);
-		for(int i=0;i<4;++i)
-		{
-		//	System.out.print(ary[i]+" ");
-		}
-
-		//System.out.println("\n");
-		//printMat(mat);
-		//RowShiftDemo(mat);
-		//printMat(mat);
-		//System.out.println();
-
-		String _s = "00";
-		_s = subByte(_s);
-		//System.out.println(_s+"\n");
-
-		//System.out.println("subByte");
-		//printMat(mat);
-		//subByteDemo(mat);
-		//printMat(mat);
-
-		//System.out.println("mixColumn");
-		//printMat(mat);
-		for(int i=0;i<4;++i)
-		{
-		//	mixColumn(mat,i);
-		}
-		printMat(mat);
-
-		//keyExpansion("123");
-
 		while(sc.hasNextLine())
 		{
 			String s = padString(sc.nextLine());
-			s = s.substring(0,31);
-			s = AESencrypt(s,key);
+			s = s.substring(0,32);
+			//System.out.println(s);
+			mat = AESencrypt(s,key);
 			fw.write(s);
 		}
 		fw.close();
+		printMat(mat);
 
 		System.out.println("PROGRAM END");
 	}
@@ -199,6 +122,7 @@ public class AES
 			{
 				mat[j][i] = temp.substring(0,2);
 				temp = temp.substring(2);
+				//System.out.println(temp);
 			}
 		}
 		return mat;
@@ -220,18 +144,51 @@ public class AES
   		return binary;
 	}
 
-	public static String AESencrypt(String s, String key)
+	public static String[][] AESencrypt(String s, String key)
 	{
 		//System.out.println("START AESencrypt filler");
 		String[][] text = new String[4][4];
+		String[][] roundkey = new String[4][4];
 		String ret = "String to encrypt: "+s+" \nKey used: "+key+"\n\n";
+		int rc = 0;		//count the number of rounds
+		Scanner sc=null;
 		keyExpansion(key);
+		try
+		{sc = new Scanner(new File("expandedKey.txt"));}
+		catch(Exception e){}
 		text = createMat(s);
-		printMat(text);
-
+		//print_as_string(text);
+		roundkey = createMat(sc.nextLine());
+		print_as_string(text);
+		System.out.println();
+		//printMat(roundkey);
+		//initial round
+		RoundKeyDemo(text,roundkey);
+		roundkey = createMat(sc.nextLine());
+		//actual round
+		for(int i=1;i<=13;++i)
+		{
+			subByteDemo(text);
+			print_as_string(text);
+			RowShiftDemo(text);
+			print_as_string(text);
+			for(int j=0;j<4;++j)
+			{
+				mixColumn(text,j);
+			}
+			print_as_string(text);
+			RoundKeyDemo(text,roundkey);
+			print_as_string(text);
+			roundkey = createMat(sc.nextLine());
+			System.out.println();
+		}
+		//final round
+		subByteDemo(text);
+		RowShiftDemo(text);
+		RoundKeyDemo(text,roundkey);
 
 		//System.out.println("END AESencrypt filler");
-		return ret;
+		return text;
 	}
 
 	public static String padString(String s)
@@ -375,8 +332,8 @@ public class AES
  		nybble[2] = ""+s2.charAt(0);
  		nybble[3] = ""+s2.charAt(1);
 
- 		String temp1 = zerofiller(Integer.toHexString(Integer.parseInt(nybble[0],16) ^ Integer.parseInt(nybble[2],16)));
- 		String temp2 = zerofiller(Integer.toHexString(Integer.parseInt(nybble[1],16) ^ Integer.parseInt(nybble[3],16)));
+ 		String temp1 = Integer.toHexString(Integer.parseInt(nybble[0],16) ^ Integer.parseInt(nybble[2],16));
+ 		String temp2 = Integer.toHexString(Integer.parseInt(nybble[1],16) ^ Integer.parseInt(nybble[3],16));
  		ret=temp1+temp2;
  		return ret;
  	}
@@ -408,7 +365,7 @@ public class AES
 
  	public static String subByte(String s)
  	{
- 		System.out.println(s);
+ 		//System.out.println(s);
  		String[] nybble = new String[2];
  		nybble[0] = ""+s.charAt(0);
  		nybble[1] = ""+s.charAt(1);
@@ -438,14 +395,12 @@ public class AES
 			count++;
  		}
  		expand_key(_key);
- 		System.out.println(_key.length);
  		try
  		{
  			for(int i=0;i<_key.length;++i)
  			{
  				if(i%16==0 && i!=0)
  				{
- 					//System.out.println("writing new line");
  					fw.write("\n");
  				}
  				fw.write(_key[i]);
@@ -524,6 +479,19 @@ public class AES
  				c++;
  			}
  		}
+ 	}
+
+ 	public static void print_as_string(String[][] s)
+ 	{
+ 		String ret = "";
+ 		for(int i=0;i<4;i++)
+ 		{
+ 			for(int j=0;j<4;++j)
+ 			{
+ 				ret=ret+s[j][i];
+ 			}
+ 		}
+ 		System.out.println(ret);
  	}
 
 
