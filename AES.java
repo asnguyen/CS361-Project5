@@ -105,6 +105,7 @@ public class AES
 			s = s.substring(0,32);
 			//System.out.println(s);
 			mat = AESencrypt(s,key);
+			s = print_as_string(mat);
 			fw.write(s);
 		}
 		fw.close();
@@ -159,8 +160,8 @@ public class AES
 		text = createMat(s);
 		//print_as_string(text);
 		roundkey = createMat(sc.nextLine());
-		print_as_string(text);
-		System.out.println();
+		//print_as_string(text);
+		//System.out.println();
 		//printMat(roundkey);
 		//initial round
 		RoundKeyDemo(text,roundkey);
@@ -169,18 +170,18 @@ public class AES
 		for(int i=1;i<=13;++i)
 		{
 			subByteDemo(text);
-			print_as_string(text);
+			//print_as_string(text);
 			RowShiftDemo(text);
-			print_as_string(text);
+			//print_as_string(text);
 			for(int j=0;j<4;++j)
 			{
 				mixColumn(text,j);
 			}
-			print_as_string(text);
+			//print_as_string(text);
 			RoundKeyDemo(text,roundkey);
-			print_as_string(text);
+			//print_as_string(text);
 			roundkey = createMat(sc.nextLine());
-			System.out.println();
+			//System.out.println();
 		}
 		//final round
 		subByteDemo(text);
@@ -481,7 +482,7 @@ public class AES
  		}
  	}
 
- 	public static void print_as_string(String[][] s)
+ 	public static String print_as_string(String[][] s)
  	{
  		String ret = "";
  		for(int i=0;i<4;i++)
@@ -491,7 +492,7 @@ public class AES
  				ret=ret+s[j][i];
  			}
  		}
- 		System.out.println(ret);
+ 		return ret;
  	}
 
 
