@@ -132,13 +132,10 @@ public class AES
 
 	public static void testInv()
 	{
-		String[] s = {"11","22","33","44"};
-		invShiftRow(s,3);
-		for(int j=0;j<s.length;++j)
-		{
-			System.out.print(s[j]+" ");
-		}
-		System.out.println();
+		String[][] mat = createMat("1c060f4c9e7ea8d6ca961a2d64c05c18");
+		printMat(mat);
+		invSubByteDemo(mat);
+		printMat(mat);
 	}
 
 	public static StringBuilder toBinary(String s)
@@ -398,6 +395,17 @@ public class AES
  		}
  	}
 
+ 	public static void invSubByteDemo(String[][] mat)
+ 	{
+ 		for(int i = 0;i<4;++i)
+ 		{
+ 			for(int j = 0;j<4;++j)
+ 			{
+				mat[i][j] = invSubByte(mat[i][j]);
+ 			}
+ 		}
+ 	}
+
  	public static String subByte(String s)
  	{
  		//System.out.println(s);
@@ -407,6 +415,18 @@ public class AES
  		int x = Integer.parseInt(nybble[0],16);
  		int y = Integer.parseInt(nybble[1],16);
  		String stemp = zerofiller(Integer.toHexString(sbox[x][y]));
+ 		return stemp;
+ 	}
+
+ 	public static String invSubByte(String s)
+ 	{
+ 		//System.out.println(s);
+ 		String[] nybble = new String[2];
+ 		nybble[0] = ""+s.charAt(0);
+ 		nybble[1] = ""+s.charAt(1);
+ 		int x = Integer.parseInt(nybble[0],16);
+ 		int y = Integer.parseInt(nybble[1],16);
+ 		String stemp = zerofiller(Integer.toHexString(invsbox[x][y]));
  		return stemp;
  	}
 
