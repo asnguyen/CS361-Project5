@@ -78,6 +78,7 @@ public class AES
 
 
 
+	static String[] keys= new String[15];
 
 	public static void main(String[] args) throws java.io.IOException
 	{
@@ -87,9 +88,75 @@ public class AES
 		Scanner sc =null;
 		String key =null;
 		FileWriter fw = null;
-		byte[][] matTxt = new byte[4][4];	//the plaintext -> ciphertext
-		byte[][] matKey = new byte[4][4];	//the key that will be altered
-		File f = new File(args[2].replace(".txt",".enc"));
+		if(args[0].equalsIgnoreCase("e"))
+		{
+			//encrypt
+			String filename = args[2].replace(".txt",".enc");
+			File f = new File(filename);
+			try
+			{ 
+				fw  = new FileWriter(f); 
+	    		sc  = new Scanner(new File(args[1]));
+				key = sc.nextLine();
+				sc  = new Scanner(new File(args[2]));
+			}
+			catch(Exception e){System.out.println("initial scanner fail");}
+			String[][] mat = new String[4][4];
+			long startTime = System.currentTimeMillis();
+			while(sc.hasNextLine())
+			{
+				String s = padString(sc.nextLine());
+				s = s.substring(0,32);
+				
+				mat = AESencrypt(s,key);
+				
+				s = print_as_string(mat);
+				fw.write(s+"\n");
+			}
+			long estTime = System.currentTimeMillis() - startTime;
+			System.out.println("Encrypting took "+estTime+" milliseconds");
+			fw.close();
+		}
+		else if(args[0].equalsIgnoreCase("d"))
+		{
+			String filename = args[2]+".dec";
+			File f = new File(filename);
+			try
+			{ 
+				fw  = new FileWriter(f); 
+	    		sc  = new Scanner(new File(args[1]));
+				key = sc.nextLine();
+				sc  = new Scanner(new File(args[2]));
+			}
+			catch(Exception e){System.out.println("initial scanner fail");}
+			String[][] mat = new String[4][4];
+			long startTime = System.currentTimeMillis();
+			while(sc.hasNextLine())
+			{
+				String s = padString(sc.nextLine());
+				s = s.substring(0,32);
+				//System.out.println(s);
+				mat = AESdecrypt(s,key);
+				s = print_as_string(mat);
+				fw.write(s+"\n");
+			}
+			fw.close();
+			long estTime = System.currentTimeMillis() - startTime;
+			System.out.println("Decrypting took "+estTime+" milliseconds");
+
+
+		}
+
+
+
+
+
+
+
+
+		/*String filename = args[2].replace(".txt",".enc"));
+		File f = new File(filename);
+		File _f = new File(filename+".dec");
 		try
 		{ 
 			fw  = new FileWriter(f); 
@@ -110,7 +177,14 @@ public class AES
 		}
 		fw.close();
 		printMat(mat);
-		testInv();
+		try
+		{
+			fw = new FileWriter(_f);
+			sc = new Scanner(f);
+
+		}
+
+		testInv();*/
 
 		System.out.println("PROGRAM END");
 	}
@@ -130,33 +204,8 @@ public class AES
 		return mat;
 	}
 
-	public static void testInv()
-	{
-		String[][] mat = createMat("1c060f4c9e7ea8d6ca961a2d64c05c18");
-		printMat(mat);
-		invSubByteDemo(mat);
-		printMat(mat);
-	}
-
-	public static StringBuilder toBinary(String s)
-	{
-		byte[] bytes = s.getBytes();
-		StringBuilder binary = new StringBuilder();
-		for (byte b : bytes)
-  		{
-     		int val = b;
-     		for (int i = 0; i < 8; i++)
-     		{
-        		binary.append((val & 128) == 0 ? 0 : 1);
-        		val <<= 1;
-     		}
-  		}
-  		return binary;
-	}
-
 	public static String[][] AESencrypt(String s, String key)
 	{
-		//System.out.println("START AESencrypt filler");
 		String[][] text = new String[4][4];
 		String[][] roundkey = new String[4][4];
 		String ret = "String to encrypt: "+s+" \nKey used: "+key+"\n\n";
@@ -167,37 +216,68 @@ public class AES
 		{sc = new Scanner(new File("expandedKey.txt"));}
 		catch(Exception e){}
 		text = createMat(s);
-		//print_as_string(text);
 		roundkey = createMat(sc.nextLine());
-		//print_as_string(text);
-		//System.out.println();
-		//printMat(roundkey);
+		keys[0] = print_as_string(roundkey);
 		//initial round
 		RoundKeyDemo(text,roundkey);
 		roundkey = createMat(sc.nextLine());
+		keys[1] = print_as_string(roundkey);
 		//actual round
 		for(int i=1;i<=13;++i)
 		{
 			subByteDemo(text);
-			//print_as_string(text);
 			RowShiftDemo(text);
-			//print_as_string(text);
 			for(int j=0;j<4;++j)
 			{
 				mixColumn(text,j);
 			}
-			//print_as_string(text);
 			RoundKeyDemo(text,roundkey);
-			//print_as_string(text);
 			roundkey = createMat(sc.nextLine());
-			//System.out.println();
+			keys[i+1] = print_as_string(roundkey);
 		}
 		//final round
 		subByteDemo(text);
 		RowShiftDemo(text);
 		RoundKeyDemo(text,roundkey);
 
-		//System.out.println("END AESencrypt filler");
+		return text;
+	}
+
+	public static String[][] AESdecrypt(String s, String key)
+	{
+		String[][] text  = new String[4][4];
+		String[][] roundkey = new String[4][4];
+		text = createMat(s);
+		keyExpansion(key);
+		Scanner sc =null;
+		try
+		{
+			sc= new Scanner(new File("expandedKey.txt"));
+		}
+		catch(Exception e){}
+		int count = 0;
+		while(sc.hasNextLine())
+		{
+			keys[count] = sc.nextLine();
+			count++;
+		}
+		//initial round
+		RoundKeyDemo(text,createMat(keys[14]));
+		invRowShiftDemo(text);
+		invSubByteDemo(text);
+		//actual round
+		for(int i = 13;i>0;--i)
+		{
+			RoundKeyDemo(text,createMat(keys[i]));
+			for(int j=0;j<4;++j)
+			{
+				invMixColumn(text,j);
+			}
+			invRowShiftDemo(text);
+			invSubByteDemo(text);
+
+		}
+		RoundKeyDemo(text,createMat(keys[0]));
 		return text;
 	}
 
@@ -211,21 +291,6 @@ public class AES
 	}
 
 	//Used the code provided by https://www.cs.utexas.edu/~byoung/cs361/mixColumns-cheat-sheet
-	private static byte mul (int a, byte b) 
-	{
-		int inda = (a < 0) ? (a + 256) : a;
-		int indb = (b < 0) ? (b + 256) : b;
-
-		if ( (a != 0) && (b != 0) ) 
-		{
-	    	int index = (LogTable[inda] + LogTable[indb]);
-	    	byte val = (byte)(AlogTable[ index % 255 ] );
-	    	return val;
-		}
-		else 
-	    	return 0;
-	}
-
 	private static int mul2 (int a, int b) 
 	{
 		int inda = (a < 0) ? (a + 256) : a;
@@ -247,23 +312,6 @@ public class AES
     // the plaintext input but is being modified).  Notice that the state here is defined as an
     // array of bytes.  If your state is an array of integers, you'll have
     // to make adjustments. 
-	public static void mixColumn2 (byte[][] st, int c) 
-	{
-	
-		byte a[] = new byte[4];
-	
-		for (int i = 0; i < 4; i++) 
-	    	a[i] = st[i][c];
-	
-		// This is exactly the same as mixColumns1, if 
-		// the mul columns somehow match the b columns there.
-		st[0][c] = (byte)(mul(2,a[0]) ^ a[2] ^ a[3] ^ mul(3,a[1]));
-		st[1][c] = (byte)(mul(2,a[1]) ^ a[3] ^ a[0] ^ mul(3,a[2]));
-		st[2][c] = (byte)(mul(2,a[2]) ^ a[0] ^ a[1] ^ mul(3,a[3]));
-		st[3][c] = (byte)(mul(2,a[3]) ^ a[1] ^ a[2] ^ mul(3,a[0]));
-    }
-
-
     public static void mixColumn (String[][] st, int c) 
 	{
 	
@@ -288,20 +336,7 @@ public class AES
     }
 
     //Used the code provided by https://www.cs.utexas.edu/~byoung/cs361/mixColumns-cheat-sheet
-    public void invMixColumn2 (byte[][] st, int c) 
-    {
-		byte a[] = new byte[4];
-	
-		for (int i = 0; i < 4; i++) 
-		    a[i] = st[i][c];
-		
-		st[0][c] = (byte)(mul(0xE,a[0]) ^ mul(0xB,a[1]) ^ mul(0xD, a[2]) ^ mul(0x9,a[3]));
-		st[1][c] = (byte)(mul(0xE,a[1]) ^ mul(0xB,a[2]) ^ mul(0xD, a[3]) ^ mul(0x9,a[0]));
-		st[2][c] = (byte)(mul(0xE,a[2]) ^ mul(0xB,a[3]) ^ mul(0xD, a[0]) ^ mul(0x9,a[1]));
-		st[3][c] = (byte)(mul(0xE,a[3]) ^ mul(0xB,a[0]) ^ mul(0xD, a[1]) ^ mul(0x9,a[2]));
-    } 
-
-    public void invMixColumn(String[][] st, int c)
+    public static void invMixColumn(String[][] st, int c)
     {
     	int a[] = new int[4];
 
